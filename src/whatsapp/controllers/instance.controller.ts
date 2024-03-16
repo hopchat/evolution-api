@@ -90,7 +90,8 @@ export class InstanceController {
 
       this.logger.verbose('checking duplicate token');
       await this.authService.checkDuplicateToken(token);
-
+      await this.authService.checkInstances();
+      
       if (!token && integration === Integration.WHATSAPP_BUSINESS) {
         throw new BadRequestException('token is required');
       }

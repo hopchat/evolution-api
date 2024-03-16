@@ -100,6 +100,23 @@ export class AuthService {
     return true;
   }
 
+
+  public async checkInstances() {
+    const instances = await this.waMonitor.instanceInfo();
+
+    this.logger.verbose('checking instances');
+    
+    const countInstanceAllow = this.configService.get<number>('COUNT_INSTANCE_ALLOW');
+
+    if (instances.length >= countInstanceAllow) {
+      throw new BadRequestException('Number of instances reached');
+    }
+
+    this.logger.verbose('available token');
+
+    return true;
+  }
+
   public async generateHash(instance: InstanceDto, token?: string) {
     const options = this.configService.get<Auth>('AUTHENTICATION');
 

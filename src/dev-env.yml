@@ -48,6 +48,7 @@ LOG:
 # If you don't even want an expiration, enter the value false
 DEL_INSTANCE: false # or false
 DEL_TEMP_INSTANCES: true # Delete instances with status closed on start
+COUNT_INSTANCE_ALLOW: 1
 
 # Temporary data storage
 STORE:

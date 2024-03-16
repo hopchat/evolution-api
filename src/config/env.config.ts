@@ -192,6 +192,7 @@ export interface Env {
   LOG: Log;
   DEL_INSTANCE: DelInstance;
   DEL_TEMP_INSTANCES: boolean;
+  COUNT_INSTANCE_ALLOW: number;
   LANGUAGE: Language;
   WEBHOOK: Webhook;
   CONFIG_SESSION_PHONE: ConfigSessionPhone;
@@ -325,6 +326,7 @@ export class ConfigService {
       DEL_TEMP_INSTANCES: isBooleanString(process.env?.DEL_TEMP_INSTANCES)
         ? process.env.DEL_TEMP_INSTANCES === 'true'
         : true,
+      COUNT_INSTANCE_ALLOW: Number.parseInt(process.env?.COUNT_INSTANCE_ALLOW) ||  1,
       LANGUAGE: process.env?.LANGUAGE || 'en',
       WEBHOOK: {
         GLOBAL: {
