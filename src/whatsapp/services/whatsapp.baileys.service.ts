@@ -89,7 +89,7 @@ import {
   GroupUpdateParticipantDto,
   GroupUpdateSettingDto,
 } from '../dto/group.dto';
-import { InstanceDto } from '../dto/instance.dto';
+import { InstanceDto, SetPresenceDto } from '../dto/instance.dto';
 import { HandleLabelDto, LabelDto } from '../dto/label.dto';
 import {
   ContactMessage,
@@ -472,7 +472,7 @@ export class BaileysStartupService extends WAStartupService {
       if (this.localProxy.enabled) {
         this.logger.info('Proxy enabled: ' + this.localProxy.proxy);
 
-        if (this.localProxy.proxy.host.includes('proxyscrape')) {
+        if (this.localProxy?.proxy?.host?.includes('proxyscrape')) {
           try {
             const response = await axios.get(this.localProxy.proxy.host);
             const text = response.data;
@@ -937,6 +937,17 @@ export class BaileysStartupService extends WAStartupService {
       try {
         this.logger.verbose('Event received: messages.upsert');
         for (const received of messages) {
+          if (
+            this.localChatwoot.enabled &&
+            (received.message?.protocolMessage?.editedMessage || received.message?.editedMessage?.message)
+          ) {
+            const editedMessage =
+              received.message?.protocolMessage || received.message?.editedMessage?.message?.protocolMessage;
+            if (editedMessage) {
+              this.chatwootService.eventWhatsapp('messages.edit', { instanceName: this.instance.name }, editedMessage);
+            }
+          }
+
           if (
             (type !== 'notify' && type !== 'append') ||
             received.message?.protocolMessage ||
@@ -1819,7 +1830,6 @@ export class BaileysStartupService extends WAStartupService {
   }
 
   // Instance Controller
-
   public async sendPresence(data: SendPresenceDto) {
     try {
       const { number } = data;
@@ -1846,6 +1856,17 @@ export class BaileysStartupService extends WAStartupService {
 
       await this.client.sendPresenceUpdate('paused', sender);
       this.logger.verbose('Sending presence update: paused');
+    } catch (error) {
+      this.logger.error(error);
+      throw new BadRequestException(error.toString());
+    }
+  }
+
+  // Presence Controller
+  public async setPresence(data: SetPresenceDto) {
+    try {
+      await this.client.sendPresenceUpdate(data.presence);
+      this.logger.verbose('Sending presence update: ' + data.presence);
     } catch (error) {
       this.logger.error(error);
       throw new BadRequestException(error.toString());
