@@ -40,9 +40,18 @@ const packageJson = JSON.parse(fs.readFileSync('./package.json', 'utf8'));
 if (!serverConfig.DISABLE_MANAGER) router.use('/manager', new ViewsRouter().router);
 
 router
-  .get('/', (req, res) => {
-    res.redirect('/manager');
-  })
+.get('/', (req, res) => {
+  res.status(HttpStatus.OK).json({
+    status: HttpStatus.OK,
+    message: 'Welcome to the Evolution API, it is working!',
+    version: packageJson.version,
+    swagger: !serverConfig.DISABLE_DOCS ? `${req.protocol}://${req.get('host')}/docs` : undefined,
+    manager: !serverConfig.DISABLE_MANAGER ? `${req.protocol}://${req.get('host')}/manager` : undefined,
+    documentation: `https://doc.evolution-api.com`,
+  });
+  res.redirect('/manager');
+})
+  
   .use('/instance', new InstanceRouter(configService, ...guards).router)
   .use('/message', new MessageRouter(...guards).router)
   .use('/chat', new ChatRouter(...guards).router)
