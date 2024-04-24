@@ -78,11 +78,6 @@ DATABASE:
     CONTACTS: false
     CHATS: false
 
-REDIS:
-  ENABLED: false
-  URI: "redis://localhost:6379"
-  PREFIX_KEY: "evolution"
-
 RABBITMQ:
   ENABLED: false
   MODE: "global"
@@ -182,8 +177,9 @@ CACHE:
   REDIS:
     ENABLED: false
     URI: "redis://localhost:6379"
-    PREFIX_KEY: "evolution-cache"
+    PREFIX_KEY: "evolution"
     TTL: 604800
+    SAVE_INSTANCES: false
   LOCAL:
     ENABLED: false
     TTL: 86400
