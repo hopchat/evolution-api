@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-namespace */
-import { AuthenticationState, WAConnectionState } from 'baileys';
+import { AuthenticationState, WAConnectionState } from '@whiskeysockets/baileys';
 
 export enum Events {
   APPLICATION_STARTUP = 'application.startup',
@@ -69,6 +69,7 @@ export declare namespace wa {
     number?: string;
     reopen_conversation?: boolean;
     conversation_pending?: boolean;
+    merge_brazil_contacts?: boolean;
     import_contacts?: boolean;
     import_messages?: boolean;
     days_limit_import_messages?: number;

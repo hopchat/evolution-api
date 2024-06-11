@@ -519,16 +519,34 @@ export class TypebotService {
         text += element.text;
       }
 
-      if (
-        element.children &&
-        (element.type === 'p' ||
-          element.type === 'a' ||
-          element.type === 'inline-variable' ||
-          element.type === 'variable')
-      ) {
+      if (element.children && element.type !== 'a') {
         for (const child of element.children) {
           text += applyFormatting(child);
         }
+      }
+
+      if (element.type === 'p' && element.type !== 'inline-variable') {
+        text = text.trim() + '\n';
+      }
+
+      if (element.type === 'inline-variable') {
+        text = text.trim();
+      }
+
+      if (element.type === 'ol') {
+        text =
+          '\n' +
+          text
+            .split('\n')
+            .map((line, index) => (line ? `${index + 1}. ${line}` : ''))
+            .join('\n');
+      }
+
+      if (element.type === 'li') {
+        text = text
+          .split('\n')
+          .map((line) => (line ? `  ${line}` : ''))
+          .join('\n');
       }
 
       let formats = '';
@@ -567,6 +585,8 @@ export class TypebotService {
           }
 
           formattedText = formattedText.replace(/\*\*/g, '').replace(/__/, '').replace(/~~/, '').replace(/\n$/, '');
+
+          formattedText = formattedText.replace(/\n$/, '');
 
           await instance.textMessage({
             number: remoteJid.split('@')[0],

@@ -6,9 +6,10 @@ import cors from 'cors';
 import express, { json, NextFunction, Request, Response, urlencoded } from 'express';
 import { join } from 'path';
 
-import { initAMQP } from './api/integrations/rabbitmq/libs/amqp.server';
+import { initAMQP, initGlobalQueues } from './api/integrations/rabbitmq/libs/amqp.server';
 import { initSQS } from './api/integrations/sqs/libs/sqs.server';
 import { initIO } from './api/integrations/websocket/libs/socket.server';
+import { ProviderFiles } from './api/provider/sessions';
 import { HttpStatus, router } from './api/routes/index.router';
 import { waMonitor } from './api/server.module';
 import { Auth, configService, Cors, HttpServer, Rabbitmq, Sqs, Webhook } from './config/env.config';
@@ -22,9 +23,13 @@ function initWA() {
   waMonitor.loadInstance();
 }
 
-function bootstrap() {
+async function bootstrap() {
   const logger = new Logger('SERVER');
   const app = express();
+
+  const providerFiles = new ProviderFiles(configService);
+  await providerFiles.onModuleInit();
+  logger.info('Provider:Files - ON');
 
   app.use(
     cors({
@@ -128,7 +133,11 @@ function bootstrap() {
 
   initIO(server);
 
-  if (configService.get<Rabbitmq>('RABBITMQ')?.ENABLED) initAMQP();
+  if (configService.get<Rabbitmq>('RABBITMQ')?.ENABLED) {
+    initAMQP().then(() => {
+      if (configService.get<Rabbitmq>('RABBITMQ')?.GLOBAL_ENABLED) initGlobalQueues();
+    });
+  }
 
   if (configService.get<Sqs>('SQS')?.ENABLED) initSQS();
 
